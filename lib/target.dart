@@ -5,15 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'Home.dart';
 
 class Target extends StatefulWidget {
-  int x;
-  int y;
-  String c;
-  int hash = -1;
+  int x, y, hash = -1;
   Color col = Colors.transparent;
-  bool isRed = false;
-  bool shouldShake = false;
-  String l = "";
-  bool isLocked = false;
+  bool isRed = false, shouldShake = false, isLocked = false;
+  String c, l = "";
   List<String> triedLetters = [];
   TargetController controller;
   final VisibilityCallback onVisibilitySelect;
@@ -43,7 +38,7 @@ class _Target extends State<Target> {
     if (widget.isLocked) {
       widget.col = Colors.lightGreen;
     } else if (widget.c != "-") {
-      widget.col = Colors.grey;
+      widget.col = Colors.blue;
     } else {
       widget.col = Colors.transparent;
     }
@@ -144,8 +139,6 @@ class _Target extends State<Target> {
       onWillAccept: (data) {
         return widget.c != "-" && !widget.isLocked;
       },
-
     );
-
   }
 }
