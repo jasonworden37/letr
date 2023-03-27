@@ -1,9 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+//import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:letr/adState.dart';
+import 'package:letr/ad_state.dart';
 import 'package:letr/target.dart';
 import 'package:provider/provider.dart';
 import 'Tile.dart';
@@ -72,7 +70,7 @@ class _HomePageState extends State<HomePage> {
         /// Initialize the bannerAd for the bottom of the game
         banner = BannerAd(
             size: AdSize.banner,
-            adUnitId: adState.BannerAdUnitId,
+            adUnitId: adState.bannerAdUnitId,
             request: const AdRequest(),
             listener: adState.bannerAdListener)
           ..load();

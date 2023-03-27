@@ -2,7 +2,7 @@ import 'package:animated_widgets/widgets/rotation_animated.dart';
 import 'package:animated_widgets/widgets/shake_animated_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'Home.dart';
+import 'home.dart';
 
 class Target extends StatefulWidget {
   int x, y, hash = -1;
@@ -85,7 +85,7 @@ class _Target extends State<Target> {
       widget.shouldShake = false;
       return Offset(20 * shake2(animation), 0);
     }
-    return Offset(0, 0);
+    return const Offset(0, 0);
   }
 
 
