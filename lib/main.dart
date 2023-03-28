@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:letr/splash_screen.dart';
 import 'package:provider/provider.dart';
-import 'home.dart';
 import 'ad_state.dart';
 
 void main() {
@@ -23,9 +23,9 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Letr',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
       ),
-      home: const HomePage(title: 'LETR'),
+      home: const SplashScreen(),
     );
   }
 }

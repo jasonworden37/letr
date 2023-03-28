@@ -6,11 +6,13 @@ import 'home.dart';
 class Tile extends StatefulWidget {
   String letter;
   int hash;
+  bool vis;
   final TileController controller;
 
   Tile(
       {Key? key,
       required this.letter,
+      required this.vis,
       required this.controller,
       required this.hash})
       : super(key: key);
@@ -21,8 +23,15 @@ class Tile extends StatefulWidget {
 
 class _Tile extends State<Tile> {
   _Tile(TileController _controller) {
+    _controller.setVis = setVisa;
   }
 
+  void setVisa()
+  {
+    setState(() {
+      widget.vis = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +41,7 @@ class _Tile extends State<Tile> {
           height: 50,
           width: 50,
               decoration: const BoxDecoration(
-                color: Colors.blue,
+                color: Colors.teal,
                 borderRadius: BorderRadius.all(Radius.circular(15.0)),
               ),
               child: Center(

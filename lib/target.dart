@@ -7,7 +7,7 @@ import 'home.dart';
 class Target extends StatefulWidget {
   int x, y, hash = -1;
   Color col = Colors.transparent;
-  bool isRed = false, shouldShake = false, isLocked = false;
+  bool isRed = false, shouldShake = false;
   String c, l = "";
   List<String> triedLetters = [];
   TargetController controller;
@@ -35,10 +35,8 @@ class _Target extends State<Target> {
   }
 
   Color getColor() {
-    if (widget.isLocked) {
-      widget.col = Colors.lightGreen;
-    } else if (widget.c != "-") {
-      widget.col = Colors.blue;
+    if (widget.c != "-") {
+      widget.col = Colors.white30;
     } else {
       widget.col = Colors.transparent;
     }
@@ -58,21 +56,15 @@ class _Target extends State<Target> {
   }
 
   void shake() {
-    if (!widget.isLocked) {
       setState(() {
         widget.shouldShake = true;
       });
-    }
   }
 
   void setR() {
     if (widget.isRed) {
       setState(() {
         widget.isRed = false;
-      });
-    } else if (!widget.isLocked) {
-      setState(() {
-        widget.isRed = true;
       });
     }
   }
@@ -99,14 +91,12 @@ class _Target extends State<Target> {
       ) {
         return InkWell(
             onTap: () {
-              if (!widget.isLocked) {
                 setState(() {
                   widget.shouldShake = false;
                   widget.l = "";
                   widget.hash = -1;
                   widget.onVisibilitySelect();
                 });
-              }
             },
             child: ShakeAnimatedWidget(
                 enabled: widget.shouldShake,
@@ -122,7 +112,7 @@ class _Target extends State<Target> {
                   child: Center(
                     child: Text(widget.l,
                         style: GoogleFonts.grandstander(
-                            fontSize: 42,
+                            fontSize: 21,
                             fontWeight: FontWeight.w900,
                             color: Colors.white)),
                   ),
@@ -130,14 +120,14 @@ class _Target extends State<Target> {
       },
       onAccept: (data) {
         setState(() {
-          //widget.isRed = false;
+          widget.isRed = false;
           widget.l = data.letter;
           widget.hash = data.id;
           widget.onVisibilitySelect();
         });
       },
       onWillAccept: (data) {
-        return widget.c != "-" && !widget.isLocked;
+        return widget.c != "-";
       },
     );
   }
