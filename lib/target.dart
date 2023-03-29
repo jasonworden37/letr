@@ -5,14 +5,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'home.dart';
 
 class Target extends StatefulWidget {
+  /// Define some integers, x and y used for the coordinate in the grid,
+  /// hash used for the index of the array so that each target has its on
+  /// unique value we can use to address it
   int x, y, hash = -1;
+  /// Define the color of the target
   Color col = Colors.transparent;
-  bool isRed = false, shouldShake = false;
+  /// Define some strings, L is the letter on the target
   String c, l = "";
-  List<String> triedLetters = [];
   TargetController controller;
+  /// Initialize a callback function that allows us to communicate with the
+  /// home page and turn on or off the visibility of any of our tiles
   final VisibilityCallback onVisibilitySelect;
 
+  /// Constructor for the target class
   Target(
       {Key? key,
       required this.x,
@@ -27,60 +33,43 @@ class Target extends StatefulWidget {
 }
 
 class _Target extends State<Target> {
+  /// Define our targetController. This allows the Home page to call function
+  /// and change the state of a particular target
   _Target(TargetController controller) {
     controller.clearLetter = clearLetter;
     controller.setColor = setColor;
-    controller.setR = setR;
-    controller.shake = shake;
   }
 
+  /// Gets the color that the target should be depending on what is in the target
   Color getColor() {
+    /// If there is nothing in the target, make it white30
     if (widget.c != "-") {
       widget.col = Colors.white30;
-    } else {
+    }
+    /// Otherwise, there is a letter there. Change the color to the color of
+    /// the tile
+    else
+    {
       widget.col = Colors.transparent;
     }
     return widget.col;
   }
 
+  /// Updates and clears the letter that is in the target
   void clearLetter() {
     setState(() {
       widget.l = "";
     });
   }
 
+  /// Updates the color of the target when this function is called
   void setColor() {
     setState(() {
       getColor();
     });
   }
 
-  void shake() {
-      setState(() {
-        widget.shouldShake = true;
-      });
-  }
-
-  void setR() {
-    if (widget.isRed) {
-      setState(() {
-        widget.isRed = false;
-      });
-    }
-  }
-
-  double shake2(double animation) =>
-      2 * (0.5 - (0.5 - Curves.bounceOut.transform(animation)).abs());
-
-  Offset getOffSet(double animation) {
-    if (widget.shouldShake) {
-      widget.shouldShake = false;
-      return Offset(20 * shake2(animation), 0);
-    }
-    return const Offset(0, 0);
-  }
-
-
+  /// Our main Widget for a target block
   @override
   Widget build(BuildContext context) {
     return DragTarget<Let>(
@@ -89,43 +78,48 @@ class _Target extends State<Target> {
         List<dynamic> accepted,
         List<dynamic> rejected,
       ) {
+        /// Inkwell allows us to be able to tap the Container
         return InkWell(
-            onTap: () {
+          /// This function is called when we tap the inkWell/Container
+          /// When this happens, we want to set the letter of the target to
+          /// nothing and make this letter visible again
+          onTap: () {
                 setState(() {
-                  widget.shouldShake = false;
                   widget.l = "";
                   widget.hash = -1;
                   widget.onVisibilitySelect();
                 });
             },
-            child: ShakeAnimatedWidget(
-                enabled: widget.shouldShake,
-                duration: const Duration(milliseconds: 1500),
-                shakeAngle: Rotation.deg(z:10 ),
-                curve: Curves.linear,
-                child: Container(
+            /// The actual container for the target
+            child:  Container(
                   decoration: BoxDecoration(
-                    color: (widget.isRed) ? Colors.red : getColor(),
+                    color: getColor(),
                   ),
                   height: 100.0,
                   width: 100.0,
                   child: Center(
+                    /// The letter that appears on the Target
                     child: Text(widget.l,
                         style: GoogleFonts.grandstander(
                             fontSize: 21,
                             fontWeight: FontWeight.w900,
                             color: Colors.white)),
                   ),
-                )));
+                ));
       },
+      /// This function is called when a target block accepts a tile
+      /// This is where we change the target letter to whatever the tile
+      /// letter was. We also need to set the visibility of the tile it came from
       onAccept: (data) {
         setState(() {
-          widget.isRed = false;
           widget.l = data.letter;
           widget.hash = data.id;
           widget.onVisibilitySelect();
         });
       },
+      /// This function is called before a tile is accepted in a target
+      /// In this case, we only allow a user to put a tile on a target if there
+      /// is not already a tile there
       onWillAccept: (data) {
         return widget.c != "-";
       },

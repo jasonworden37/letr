@@ -85,6 +85,9 @@ class _HomePageState extends State<HomePage> {
   /// A list of our TargetController
   List<TargetController> targetControllers = [];
 
+  /// A list of our TileControllers
+  List<TileController> tileControllers = [];
+
   /// The variables to hold our ads
   BannerAd? banner;
 
@@ -375,13 +378,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// TODO: Take care of the visibility for the tiles and targets
-  void doVisibility() {
+  Future<void> doVisibility() async {
     // List<int> temp = [];
     // for (var x = 0; x < height; x++) {
     //   for (var y = 0; y < width; y++) {
     //     if (list[x][y] != "-") {
     //       int index = (x * width) + y;
-    //       if (targets[index].l != "") {
+    //       if ( targets.[index].l != "") {
     //         temp.add(targets[index].hash);
     //       }
     //     }
@@ -526,7 +529,7 @@ class _HomePageState extends State<HomePage> {
     for (int lnIndex = 0; lnIndex < letters.length; lnIndex++) {
       /// Add the created tiles to the temp list
       tempTiles.add(Tile(
-          vis: true,
+          visibility: true,
           letter: letters[lnIndex],
           controller: TileController(),
           hash: lnIndex));
@@ -574,18 +577,18 @@ class Let {
   Let(this.letter, this.id);
 }
 
-/// Class TileController to control the tiles
+/// Class TileController to allow communication between the Tile, Target and
+/// Home dart objects
 class TileController {
-  late void Function() setVis;
+  late void Function() setVisibility;
 }
 
-/// Class TargetController used to control the Targets
+/// Class TargetController to allow communication between the Tile, Target and
+/// Home dart objects
 class TargetController {
   late void Function() clearLetter;
   late void Function() setColor;
-  late void Function() setR;
-  late void Function() shake;
 }
 
-/// The callback function for visibility
+/// The callback function for visibility. This is call
 typedef VisibilityCallback = void Function();
