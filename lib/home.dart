@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:letr/ad_state.dart';
+import 'package:letr/profile.dart';
+import 'package:letr/profile_storage.dart';
 import 'package:letr/target.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +47,10 @@ class _HomePageState extends State<HomePage> {
   Future<List<Target>> targets = Future<List<Target>>(() {
     return [];
   });
+
+  /// The instance of our profile storage which we use to store profile data
+  /// like board and rack states
+  ProfileStorage profileStorage = ProfileStorage();
   /// A temporary list of letters used for the rack
   List<String> letters = [
     "B",
@@ -91,6 +98,8 @@ class _HomePageState extends State<HomePage> {
   /// The variables to hold our ads
   BannerAd? banner;
 
+  /// Override the initState to take care of a few things before out page
+  /// gets created
   @override
   void initState()
   {
@@ -129,6 +138,8 @@ class _HomePageState extends State<HomePage> {
         _addCurrency(100);
       }
     });
+
+    readPlayerData();
   }
 
   /// Overriding this function to initialize our ads
@@ -288,7 +299,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           backgroundColor: Colors.transparent,
-          /// The Main colum for the page
+          /// The Main column for the page
           body: Column(children: <Widget>[
             /// A future builder used to build all the targets once we get them
             /// from storage. Inside is an InteractiveViewer which allows the user
@@ -349,7 +360,7 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.square_rounded),
                   backgroundColor: Colors.teal,
                   heroTag: 'Blank-Tag' ,
-                  onPressed: giveBlankTile),
+                  onPressed: updateProfileData),
 
             ])
             ),
@@ -567,6 +578,16 @@ class _HomePageState extends State<HomePage> {
   /// TODO: Function to give a hint
   void giveBlankTile() {}
 
+  Future<void> updateProfileData() async {
+    profileStorage.writeToProfile(await tiles, await targets);
+  }
+
+  Future<void> readPlayerData () async {
+    Map<String, dynamic> jsonResponse = await profileStorage.readFromProfile();
+    jsonResponse.forEach((key, value) {
+      print(key + " is: " + value);
+    });
+  }
 }
 
 /// Class Let is a class to represent a letter

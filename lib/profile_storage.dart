@@ -1,14 +1,20 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:letr/profile.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'Tile.dart';
+import 'target.dart';
 
 class ProfileStorage
 {
-
+  Profile profile = Profile([], []);
   /// This function retrieves the localPath of the users device and returns
   /// it in a future
   Future<String> get localPath async
   {
     final directory = await getApplicationDocumentsDirectory();
+    print(directory.path);
     return directory.path;
   }
 
@@ -41,11 +47,18 @@ class ProfileStorage
   /// This function writes to a users profile by getting the users local file
   /// It takes in String that is written to the file
   /// It returns a future of a file
-  Future<File> writeToProfile(String name) async
+  Future<File> writeToProfile(List<Tile>  storedTiles, List<Target> storedTargets) async
+  {
+    profile.setStoredTargets(storedTargets);
+    profile.setStoredTiles(storedTiles);
+    final file = await localFile;
+    return file.writeAsString(json.encode(profile));
+  }
+
+  Future<Map<String, dynamic>> readFromProfile() async
   {
     final file = await localFile;
-
-    return file.writeAsString(name);
-
+    String contents = await file.readAsString();
+    return jsonDecode(contents);
   }
 }
