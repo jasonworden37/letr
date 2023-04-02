@@ -5,11 +5,13 @@ class Profile
 {
   late List<Tile>  storedTiles;
   late List<Target> storedTargets;
+  late int didGetSunday;
 
 
   Profile(
       this.storedTiles,
       this.storedTargets,
+      this.didGetSunday
       );
 
 
@@ -24,16 +26,18 @@ class Profile
   }
 
   Profile.fromJson(Map<String, dynamic> json) {
-    storedTiles = json['tiles'];
-    storedTargets = json['targets'];
+    //storedTiles = json['tiles'];
+    //storedTargets = json['targets'];
+    didGetSunday = json['sunday'];
 
 
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data =  <String, dynamic>{};
-    data['tiles'] = storedTiles;
-    data['targets'] = storedTargets;
+    // data['tiles'] = storedTiles;
+    // data['targets'] = storedTargets;
+    data['sunday'] = didGetSunday;
     return data;
   }
 }

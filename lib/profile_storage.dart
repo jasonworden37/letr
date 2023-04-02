@@ -8,7 +8,7 @@ import 'target.dart';
 
 class ProfileStorage
 {
-  Profile profile = Profile([], []);
+  Profile profile = Profile([], [], 0);
   /// This function retrieves the localPath of the users device and returns
   /// it in a future
   Future<String> get localPath async
@@ -58,7 +58,15 @@ class ProfileStorage
   Future<Map<String, dynamic>> readFromProfile() async
   {
     final file = await localFile;
-    String contents = await file.readAsString();
+    String contents = '';
+    try
+    {
+      contents = await file.readAsString();
+    }
+    catch (e)
+    {
+      writeToProfile([], []);
+    }
     return jsonDecode(contents);
   }
 }

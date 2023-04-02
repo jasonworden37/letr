@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:letr/ad_state.dart';
@@ -26,7 +27,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   /// Text Controller used to capture the input of the users name 
   final TextEditingController _textFieldController = TextEditingController();
-
   /// Shared Preferences instance
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   /// Shared Preferences values saved for the user
@@ -40,13 +40,17 @@ class _HomePageState extends State<HomePage> {
   /// at 1000
   late Future<int> currency;
   /// A List Tiles as a future, return when retrieve the users existing letters
-  Future<List<Tile>> tiles = Future<List<Tile>>(() {
+  late List<List<String>> allWeeksLetters;
+  Future<List<Tile>> futureTiles = Future<List<Tile>>(() {
     return [];
   });
   /// A list of Targets as a future
-  Future<List<Target>> targets = Future<List<Target>>(() {
+  Future<List<Target>> futureTargets = Future<List<Target>>(() {
     return [];
   });
+
+  List<Target> currentTargets = [];
+  List<Tile> currentTiles = [];
 
   /// The instance of our profile storage which we use to store profile data
   /// like board and rack states
@@ -105,6 +109,7 @@ class _HomePageState extends State<HomePage> {
   {
     /// Call the parent function
     super.initState();
+    loadAll();
     /// Increment the number of times the users has opened the app.
     _incrementCounter();
     /// Set the local app count variable to what is stored in the shared
@@ -306,7 +311,7 @@ class _HomePageState extends State<HomePage> {
             /// to zoom in and out of the board to enlarge the spaces. Inside this
             /// is the actual board, a gridview.
             FutureBuilder<List<Target>>(
-              future: targets,
+              future: futureTargets,
               builder:
                   (BuildContext context, AsyncSnapshot<List<Target>> snapshot) {
                 return Expanded(
@@ -327,7 +332,7 @@ class _HomePageState extends State<HomePage> {
             /// A future builder that waits for a List<Tile>. Once 'tiles' is
             /// populated, this tiles are drawn in the form of a Gridview
             FutureBuilder<List<Tile>>(
-              future: tiles,
+              future: futureTiles,
               builder:
                   (BuildContext context, AsyncSnapshot<List<Tile>> snapshot) {
                 return Expanded(
@@ -578,16 +583,71 @@ class _HomePageState extends State<HomePage> {
   /// TODO: Function to give a hint
   void giveBlankTile() {}
 
-  Future<void> updateProfileData() async {
-    profileStorage.writeToProfile(await tiles, await targets);
+  void updateProfileData() {
+    profileStorage.writeToProfile( currentTiles,  currentTargets);
   }
 
-  Future<void> readPlayerData () async {
+  Future<void> readPlayerData() async {
     Map<String, dynamic> jsonResponse = await profileStorage.readFromProfile();
     jsonResponse.forEach((key, value) {
       print(key + " is: " + value);
     });
   }
+
+  Future<String> loadLettersFromFile(String weekNum) async
+  {
+    String allLetters = await rootBundle.loadString('assets/letters.txt');
+    List<String> splitWeeks = allLetters.split(':');
+    String weekLetters = "NULL";
+    for (int indx = 0; indx < splitWeeks.length; indx++)
+    {
+      if (splitWeeks[indx].contains(weekNum)) weekLetters = splitWeeks[indx];
+    }
+    return weekLetters;
+  }
+
+  Future<List<List<String>>> getWeeksLetters() async {
+    List<List<String>> weeksLetters = [];
+    String thisWeeksLetters = await loadLettersFromFile('Week34');
+    List<String> eachDayList = thisWeeksLetters.split(',');
+    eachDayList.removeAt(0);
+    for (int indx = 0; indx < eachDayList.length; indx++)
+    {
+      List<String> listOfLetters = [];
+      for(int charAt = 0; charAt < eachDayList[indx].length; charAt++)
+      {
+        listOfLetters.add(eachDayList[indx][charAt]);
+      }
+      weeksLetters.add(listOfLetters);
+    }
+
+
+    /// TEMPORARY
+
+    // for(int i = 0; i < weeksLetters.length; i++)
+    //   {
+    //     print('---------------------------------');
+    //     for(int j =0; j < weeksLetters[i].length; j++)
+    //       {
+    //         print(weeksLetters[i][j]);
+    //       }
+    //     print('-------------------------------------');
+    //   }
+    /// TEMPORARY
+    return weeksLetters;
+
+  }
+
+  void loadAll() async
+  {
+    allWeeksLetters = await getWeeksLetters();
+  }
+
+  List<String> getSpecificDayLetters(int day)
+  {
+    return allWeeksLetters[day];
+  }
+
 }
 
 /// Class Let is a class to represent a letter
