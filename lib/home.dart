@@ -420,24 +420,39 @@ class _HomePageState extends State<HomePage> {
     return (x * width) + y;
   }
 
-  /// TODO: Take care of the visibility for the tiles and targets
-  void doVisibility() {
-    // List<int> temp = [];
-    // for (var x = 0; x < height; x++) {
-    //   for (var y = 0; y < width; y++) {
-    //     if (list[x][y] != "-") {
-    //       int index = (x * width) + y;
-    //       if ( targets.[index].l != "") {
-    //         temp.add(targets[index].hash);
-    //       }
-    //     }
-    //   }
-    // }
-    // for (int i = 0; i < letters.length; i++) {
-    //   if (!temp.contains(tiles[i].hash)) {
-    //     tileControllers[i].setVis();
-    //   }
-    // }
+  /// This function takes care of the visibility for each Tile on the rack. It
+  /// figures out if the letter(hash for letter) is on the board as a target. If
+  /// it is, it makes that tile invisible, if its not, it makes it visible. The
+  /// reason we set all the non-present-targets to visible is incase the user
+  /// took a tile off the board
+  Future<void> doVisibility() async {
+    /// Initialize some temp vars
+    List<int> temp = [];
+    List<Target> tempTars = await futureTargets;
+    /// Loop through our current Targets
+    for(int indx = 0; indx < tempTars.length; indx++)
+    {
+      /// If we have a letter at this target
+      if(tempTars[indx].l != "")
+      {
+        /// Add the has for this letter to our list
+        /// This tile is on the board so we need to set it invisibile
+        temp.add(tempTars[indx].hash);
+      }
+
+    }
+
+    /// Initialize and wait for our Tiles
+    List<Tile> tempTile = await futureTiles;
+    /// Loop trough our currentTiles on the rack
+    for (int i = 0; i < tempTile.length; i++) {
+      /// If this tiles hash is not in our temp list, it is not on the target
+      /// board.
+      if (!temp.contains(tempTile[i].hash)) {
+        /// Call setVisibility to make it visiblie
+        tileControllers[i].setVisibility();
+      }
+    }
   }
 
   /// getName function is used to retrieve the name of the user
@@ -575,10 +590,11 @@ class _HomePageState extends State<HomePage> {
     /// Loop through letters the user has and create tiles for them
     for (int lnIndex = 0; lnIndex < letters.length; lnIndex++) {
       /// Add the created tiles to the temp list
+      tileControllers.add(TileController());
       tempTiles.add(Tile(
           visibility: true,
           letter: letters[lnIndex],
-          controller: TileController(),
+          controller: tileControllers[lnIndex],
           hash: lnIndex));
     }
 
@@ -631,7 +647,7 @@ class _HomePageState extends State<HomePage> {
   /// attributes in the users storage. This can be used to populate the users
   /// board and rack
   Future<void> readPlayerData() async {
-    /// Call the readFromProfile function the the profileStorage class and store
+    /// Call fthe readFromProfile function the the profileStorage class and store
     /// the result in a map. This will act as json data
     jsonResponse = await profileStorage.readFromProfile();
 
@@ -760,17 +776,25 @@ class _HomePageState extends State<HomePage> {
   }
 
 
+  /// This is called with a list of letters to be added to the users rack
   Future<void> addLettersToRack(List<String> letters) async
   {
+    /// Loop through the letters and add them one by one
     for (int indx = 0; indx < letters.length; indx++) {
       currentLettersInTiles.add(letters[indx]);
     }
   }
 
+  /// Add a certain days letters to the rack
+  /// This is called when the user first logs in for the week(to get sundays letters)
+  /// or first logs on for the day
   Future<void> addDayToRack(int day) async
   {
+    /// Get the letters for this day
     List<String> dayLetters = await getSpecificDayLetters(day);
+    /// Add the letters
     await addLettersToRack(dayLetters);
+    /// Update the files
     await updateProfileData();
   }
 
@@ -785,6 +809,8 @@ class _HomePageState extends State<HomePage> {
     return allWeeksLetters[day];
   }
 
+  /// Return the day of the week in String form, given the index of the day of
+  /// the week
   void getDayOfWeek(int day)
   {
     /// Switch statement over index, set day depending on number

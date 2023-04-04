@@ -92,7 +92,7 @@ class _Tile extends State<Tile> {
       /// Here is where we set the visibility to false
       onDragCompleted: () {
         setState(() {
-          //widget.visibility = false;
+          widget.visibility = false;
         });
       },
       /// This function automatically gets called when we start dragging a tile
