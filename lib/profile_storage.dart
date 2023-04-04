@@ -8,13 +8,12 @@ import 'target.dart';
 
 class ProfileStorage
 {
-  Profile profile = Profile([], [], 0);
+  Profile profile = Profile([], [], 0, 0, 0, 0, 0, 0, 0);
   /// This function retrieves the localPath of the users device and returns
   /// it in a future
   Future<String> get localPath async
   {
     final directory = await getApplicationDocumentsDirectory();
-    print(directory.path);
     return directory.path;
   }
 
@@ -47,26 +46,72 @@ class ProfileStorage
   /// This function writes to a users profile by getting the users local file
   /// It takes in String that is written to the file
   /// It returns a future of a file
-  Future<File> writeToProfile(List<Tile>  storedTiles, List<Target> storedTargets) async
+  Future<File> writeToProfile(
+      List<String> storedTiles,
+      List<String> storedTargets) async
   {
+    /// Set the vars to our current states
     profile.setStoredTargets(storedTargets);
     profile.setStoredTiles(storedTiles);
+
+    /// Grab the local file
     final file = await localFile;
-    return file.writeAsString(json.encode(profile));
+    /// Write the new data to the file
+    return await file.writeAsString(json.encode(profile));
   }
 
+  /// This function is used to read from the users profile.
+  /// It returns a Map of keys and dynamic values from the json file
   Future<Map<String, dynamic>> readFromProfile() async
   {
-    final file = await localFile;
-    String contents = '';
-    try
+    /// Grab the users local file
+    File file = await localFile;
+    /// Check if the file does not exist
+    if (!(await file.exists()))
     {
-      contents = await file.readAsString();
+      /// Since it doesn't exist, call writeToProfile to create it with empty
+      /// data to avoid an error
+      file = await writeToProfile([], []);
     }
-    catch (e)
-    {
-      writeToProfile([], []);
-    }
+    /// Read the files contents
+    String contents = await file.readAsString();
+    /// Return the contents in json form
     return jsonDecode(contents);
   }
+
+  /// Function that set the profiles 'didGet' variable to a value
+  /// The param index is used to determine which day the called is trying to set
+  /// and the param didGet is used to set it to that value
+  void setSpecificDidGetDayVar(int index, int didGet)
+  {
+
+    /// Switch statement over index, set day depending on number
+    switch(index) {
+      case 0: {  profile.didGetSunday = didGet; }
+      break;
+
+      case 1: {  profile.didGetMonday = didGet; }
+      break;
+
+      case 2: {  profile.didGetTuesday = didGet; }
+      break;
+
+      case 3: {  profile.didGetWednesday = didGet; }
+      break;
+
+      case 4: {  profile.didGetThursday = didGet; }
+      break;
+
+      case 5: {  profile.didGetFriday = didGet; }
+      break;
+
+      case 6: {  profile.didGetSaturday = didGet; }
+      break;
+
+      default: {}
+      break;
+    }
+  }
+
+
 }
