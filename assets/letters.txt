@@ -1,5 +1,5 @@
-2023-04-02 14:44:24.895715,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
-2023-04-09 14:44:24.895715,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
-2023-04-16 14:44:24.895715,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
-2023-04-23 14:44:24.895715,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
-2023-04-30 14:44:24.895715,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
+2023-04-02,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
+2023-04-09,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
+2023-04-16,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
+2023-04-23,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:
+2023-04-30,abcdefghijkl,qrs,tuv,wzy,qrs,tuv,wzy:

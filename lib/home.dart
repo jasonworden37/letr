@@ -5,9 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:letr/ad_state.dart';
 import 'package:letr/profile_storage.dart';
+import 'package:letr/settings.dart';
+import 'package:letr/shared_prefs.dart';
+import 'package:letr/shop.dart';
 import 'package:letr/target.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'Tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,21 +26,8 @@ class _HomePageState extends State<HomePage> {
   /// Text Controller used to capture the input of the users name 
   final TextEditingController _textFieldController = TextEditingController();
 
-  /// Shared Preferences instance
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-  /// Shared Preferences values saved for the user
-  /// OpenedAppCounter is used to keep a count of how many times the users opens
-  /// the app
-  late Future<int> openedAppCounter;
-
-  /// userName is used to keep track of the users name. It is set the first time
-  /// the user opens the app
-  late Future<String> userName;
-
-  /// currency is used to keep track of how many coins the user has, this starts
-  /// at 1000
-  late Future<int> currency;
+  /// Shared Prefs instance
+  SharedPrefs sharedPrefs = SharedPrefs();
 
   /// A List Tiles as a future, return when retrieve the users existing letters
   late List<List<String>> allWeeksLetters;
@@ -92,31 +81,20 @@ class _HomePageState extends State<HomePage> {
     startOfWeekDate = findFirstDateOfTheWeek(date);
 
     /// Increment the number of times the users has opened the app.
-    _incrementCounter();
+    sharedPrefs.incrementCounter();
 
     /// Set the day of the week variable
     numOfWeek = date.weekday;
     getDayOfWeek(numOfWeek);
-    /// Set the local app count variable to what is stored in the shared
-    /// preferences
-    openedAppCounter = _getCounter();
-
-    /// Set the local userName variable to what is stored in the shared
-    /// preferences app
-    userName = _getName();
-
-    /// Set the local currency variable to what is stored int the shared
-    /// preferences app. If there is none saved, the default is 1000
-    currency = _getCurrency();
 
     /// Wait for the userName to be filled, then if there is no name saved (null)
     /// this means this is the first time the user has opened the app
     /// Open a dialog to ask what their name is
-    userName.then((value) {
+    sharedPrefs.getName().then((value) {
       /// If name is null, we need their name
       if (value == 'gamer') {
         /// Set the users starting currency to 1000
-        _setCurrency(1000);
+        sharedPrefs.setCurrency(1000);
         /// Open Dialog to get their name
         _showDialog();
       }
@@ -124,10 +102,10 @@ class _HomePageState extends State<HomePage> {
 
     /// Wait for openedAppCounter to be filled, then if it is their 100th, 200th
     /// etc time opening the app, award them with coins.
-    openedAppCounter.then((value) {
+    sharedPrefs.getCounter().then((value) {
       if (value % 100 == 0) {
         /// Give the user 100 coins
-        _addCurrency(100);
+        sharedPrefs.addCurrency(100);
       }
     });
 
@@ -212,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                         /// Once it is grabbed, we can paste it in the message of the day
                         /// If it is not grabbed, we just say hello gamer
                         FutureBuilder<String>(
-                          future: userName,
+                          future: sharedPrefs.getName(),
                           builder:
                               (BuildContext context,
                               AsyncSnapshot<String> snapshot) {
@@ -249,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                             /// to be grabbed. If that does not work we paste
                             /// that the user has no currency
                             FutureBuilder<int>(
-                              future: currency,
+                              future: sharedPrefs.getCurrency(),
                               builder:
                                   (BuildContext context, AsyncSnapshot<
                                   int> snapshot) {
@@ -274,30 +252,42 @@ class _HomePageState extends State<HomePage> {
                       ]
                   ),
                 ),
-
+                /// Home Page. Once clicked, the user will be redirected to
+                /// the home page of the app, unless already there
+                ListTile(
+                  leading: const Icon(Icons.home),
+                  title: const Text('Home'),
+                  onTap: () {
+                    /// Pop the drawer. BOOM. User at home page
+                    Navigator.pop(context);
+                  },
+                ),
                 /// Shop page in our drawer. Once clicked, the user will be
-                /// redirected to the shop
+                /// redirected to the shop, unless already there
                 ListTile(
                   leading: const Icon(Icons.shopping_cart),
                   title: const Text('Shop'),
                   onTap: () {
-                    // Update the state of the app
-                    // ...
-                    // Then close the drawer
-                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                        builder: (context) => ShopPage(sharedPrefs: sharedPrefs)
+                    ));
+                    //Navigator.pop(context);
                   },
                 ),
 
                 /// Settings page in our drawer. Once clicked, the user will be
-                /// redirected to the settings page
+                /// redirected to the settings page, unless already there
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: const Text('Settings'),
                   onTap: () {
-                    // Update the state of the app
-                    // ...
-                    // Then close the drawer
-                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SettingsPage(sharedPrefs: sharedPrefs)
+                        ));
                   },
                 ),
 
@@ -457,100 +447,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// getName function is used to retrieve the name of the user
-  /// and also updates the local variable incase it is being used
-  Future<String> _getName() async
-  {
-    userName = _prefs.then((SharedPreferences prefs) {
-      return prefs.getString('name') ?? 'gamer';
-    });
-
-    return userName;
-  }
-
-  /// _getCounter function is used to retrieve the number of times a user has
-  /// opened the app and also updates the local variable incase it is being used
-  Future<int> _getCounter() async
-  {
-    openedAppCounter = _prefs.then((SharedPreferences prefs) {
-      return prefs.getInt('counter') ?? 0;
-    });
-
-    return openedAppCounter;
-  }
-
-  /// _getCurrency function is used to retrieve the currency of the user
-  /// and also updates the local variable incase it is being used
-  Future<int> _getCurrency() async
-  {
-    currency = _prefs.then((SharedPreferences prefs) {
-      return prefs.getInt('currency') ?? 0;
-    });
-
-    return currency;
-  }
-
-  /// _subtractCurrency function is used to add currency to a users bank
-  /// This will be saved in shared preferences
-  Future<void> _subtractCurrency(int sub) async {
-    final SharedPreferences prefs = await _prefs;
-    final int cur = (prefs.getInt('currency') ?? 0) - sub;
-    setState(() {
-      currency = prefs.setInt('currency', cur).then((bool success) {
-        return cur;
-      });
-    });
-  }
-
-  /// _addCurrency function is used to add currency to a users bank
-  /// This will be saved in shared preferences
-  Future<void> _addCurrency(int add) async {
-    final SharedPreferences prefs = await _prefs;
-    final int cur = (prefs.getInt('currency') ?? 0) + add;
-    setState(() {
-      currency = prefs.setInt('currency', cur).then((bool success) {
-        return cur;
-      });
-    });
-  }
-
-  /// _setCurrency function is used to set the currency of a user. This will
-  /// overwrite any previous currency and it will be lost forever
-  Future<void> _setCurrency(int set) async {
-    final SharedPreferences prefs = await _prefs;
-    setState(() {
-      currency = prefs.setInt('currency', set).then((bool success) {
-        return set;
-      });
-    });
-  }
-
-  /// _incrementCounter function is used to increment the counter that keeps
-  /// track of how many times the user has opened the app, by one. Then it is
-  /// stored in shared preferences
-  Future<void> _incrementCounter() async {
-    final SharedPreferences prefs = await _prefs;
-    final int counter = (prefs.getInt('counter') ?? 0) + 1;
-
-    setState(() {
-      openedAppCounter = prefs.setInt('counter', counter).then((bool success) {
-        return counter;
-      });
-    });
-  }
-
-  /// EditProfileName function is used to edit the users name
-  /// This is called but _showDialog when the user enters their name. From here
-  /// the name is stored in shared preferences
-  Future<void> _editProfileName(String newName) async {
-    final SharedPreferences prefs = await _prefs;
-    setState(() {
-      userName = prefs.setString('name', newName).then((bool success) {
-        return newName;
-      });
-    });
-  }
-
   /// Creates a pop up dialog and Alert Dialog that asks the user for their name
   /// This should only be called once, the first time the user ever opens the
   /// app. It saves the name in sharedPreferences
@@ -568,11 +464,10 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(
                 child: const Text('Submit'),
                 onPressed: () {
-                  userName = Future<String>(() {
+                  Future<String>(() {
                     return _textFieldController.text;
-                  });
-                  userName.then((value) {
-                    _editProfileName(value);
+                  }).then((value) {
+                    sharedPrefs.editProfileName(value);
                   });
                   Navigator.of(context).pop();
                 },
@@ -692,7 +587,7 @@ class _HomePageState extends State<HomePage> {
   Future<List<List<String>>> getWeeksLetters() async {
     /// Initialize vars
     List<List<String>> weeksLetters = [];
-
+    print(startOfWeekDate.toString().split(' ')[0]);
     /// Store this weeks letters in a string var
     String thisWeeksLetters = await loadLettersFromFile(startOfWeekDate.toString().split(' ')[0]);
 
