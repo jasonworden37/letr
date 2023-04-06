@@ -1,14 +1,15 @@
-import 'Tile.dart';
-import 'target.dart';
 
 class Profile
 {
+  /// Initialize some variables that we will store in the json file
   late List<String>  storedTiles;
   late List<String> storedTargets;
   late int didGetSunday, didGetMonday, didGetTuesday,
       didGetWednesday, didGetThursday, didGetFriday, didGetSaturday;
 
 
+  /// Constructor for the profile class. All these variables are saved in the
+  /// users profile.json file
   Profile(
       this.storedTiles,
       this.storedTargets,

@@ -146,7 +146,7 @@ class _ShopPageState extends State<ShopPage>
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => HomePage(title: 'LETR')
+                            builder: (context) => const HomePage(title: 'LETR')
                         ));
                   },
                 ),

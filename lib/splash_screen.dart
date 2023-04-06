@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:letr/home.dart';
@@ -17,23 +16,24 @@ class _SplashScreenState extends State<SplashScreen> {
   PermissionStatus permissionStatus = PermissionStatus.denied;
   /// Create the actual permission for the external storage
   Permission externalStoragePermission = Permission.manageExternalStorage;
-  /// Text Controller used to capture the input of the users name
-  final TextEditingController _textFieldController = TextEditingController();
 
+  /// Override the initState to request permissions
   @override
   void initState()
   {
     /// Call the parent function
     super.initState();
+    /// Request External storage permission
     requestExternalStorageProject();
   }
 
-  /// Wait for a status
+  /// This function gets the status of the permission
   void waitForExternalStoragePermissionStatus() async {
     final status = await externalStoragePermission.status;
     setState(() => permissionStatus = status);
   }
 
+  /// This function requests permission to use this feature from the user
   Future<void> requestPermission(Permission permission) async {
     final status = await permission.request();
 
@@ -42,6 +42,11 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
+  /// This function calls two functions. One is to check the status of the
+  /// external storage permission. The other, if the permission is denied, is called
+  /// to request permission from the user. If the user denies permission, a dialog is
+  /// shown explaining why we need it and how to turn it on. The user cannot
+  /// got further without enabling it
   void requestExternalStorageProject() async
   {
     var status = await Permission.storage.status;
@@ -49,13 +54,10 @@ class _SplashScreenState extends State<SplashScreen> {
     status = await Permission.storage.request();
     if(!status.isGranted)
     {
-      print('Permission not granted ');
       _showDialog();
     }
     else
     {
-      print('Permission Granted');
-
       /// This screen will act as a splash screen. We will wait three seconds on
       /// this screen to make it look like things are loading. Then, after three
       /// seconds, go to our home page
@@ -81,6 +83,8 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  /// Dialog called to tell the user to go change the permission in settings
+  /// so that they can use the app
   _showDialog()  {
     return showDialog<String>(
       context: context,

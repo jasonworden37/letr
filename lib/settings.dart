@@ -144,7 +144,7 @@ class _SettingPageState extends State<SettingsPage>
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => HomePage(title: 'LETR')
+                            builder: (context) => const HomePage(title: 'LETR')
                         ));
                   },
                 ),

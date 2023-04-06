@@ -43,10 +43,16 @@ class _HomePageState extends State<HomePage> {
   /// Initialize date to get day of week etc
   DateTime date = DateTime.now();
 
-  ///
+  /// Initialize the startOfWeekDate. Originally set to today. Later changed to
+  /// the date of the Sunday of this week
   DateTime startOfWeekDate = DateTime.now();
 
+  /// Initialize the numOfWeek int used to keep track of what day it is in numbers
+  /// Sunday:0 Monday:1 etc
   int numOfWeek = -1;
+
+  /// Initialize the dayOfWeek String used to keep a string name of the day of the
+  /// week. Sunday, Monday etc
   String dayOfWeek = '';
 
   /// Initialize variables to act as holders for json profile data
@@ -109,6 +115,11 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
+    /// Call the loadAll function. This function is used to load anything we need
+    /// to start this page of the app. It is called in initState so that all of
+    /// this happens early on. The reason it is a separate function is so that
+    /// we can use functions in it and wait for them to complete. You cannot
+    /// use async in initState
     loadAll();
 
     /// Call the parent function
@@ -422,14 +433,14 @@ class _HomePageState extends State<HomePage> {
     List<int> temp = [];
     List<Target> tempTars = await futureTargets;
     /// Loop through our current Targets
-    for(int indx = 0; indx < tempTars.length; indx++)
+    for(int index = 0; index < tempTars.length; index++)
     {
       /// If we have a letter at this target
-      if(tempTars[indx].l != "")
+      if(tempTars[index].l != "")
       {
         /// Add the has for this letter to our list
-        /// This tile is on the board so we need to set it invisibile
-        temp.add(tempTars[indx].hash);
+        /// This tile is on the board so we need to set it invisible
+        temp.add(tempTars[index].hash);
       }
 
     }
@@ -441,7 +452,7 @@ class _HomePageState extends State<HomePage> {
       /// If this tiles hash is not in our temp list, it is not on the target
       /// board.
       if (!temp.contains(tempTile[i].hash)) {
-        /// Call setVisibility to make it visiblie
+        /// Call setVisibility to make it visible
         tileControllers[i].setVisibility();
       }
     }
@@ -544,7 +555,7 @@ class _HomePageState extends State<HomePage> {
   /// attributes in the users storage. This can be used to populate the users
   /// board and rack
   Future<void> readPlayerData() async {
-    /// Call fthe readFromProfile function the the profileStorage class and store
+    /// Call the readFromProfile function the the profileStorage class and store
     /// the result in a map. This will act as json data
     jsonResponse = await profileStorage.readFromProfile();
 
@@ -572,10 +583,10 @@ class _HomePageState extends State<HomePage> {
     String weekLetters = "NULL";
 
     /// Loop through all the weeks of letters
-    for (int indx = 0; indx < splitWeeks.length; indx++) {
+    for (int index = 0; index < splitWeeks.length; index++) {
       /// Check if the current index is this weeks letters. Set it to our var
       /// if it is
-      if (splitWeeks[indx].contains(weekNum)) weekLetters = splitWeeks[indx];
+      if (splitWeeks[index].contains(weekNum)) weekLetters = splitWeeks[index];
     }
 
     /// Return this weeks letters
@@ -587,7 +598,6 @@ class _HomePageState extends State<HomePage> {
   Future<List<List<String>>> getWeeksLetters() async {
     /// Initialize vars
     List<List<String>> weeksLetters = [];
-    print(startOfWeekDate.toString().split(' ')[0]);
     /// Store this weeks letters in a string var
     String thisWeeksLetters = await loadLettersFromFile(startOfWeekDate.toString().split(' ')[0]);
 
@@ -600,14 +610,14 @@ class _HomePageState extends State<HomePage> {
     eachDayList.removeAt(0);
 
     /// Loop through this list of strings
-    for (int indx = 0; indx < eachDayList.length; indx++) {
+    for (int index = 0; index < eachDayList.length; index++) {
       /// Initialize inner list var
       List<String> listOfLetters = [];
 
       /// Loop through each char in this particular days string
-      for (int charAt = 0; charAt < eachDayList[indx].length; charAt++) {
+      for (int charAt = 0; charAt < eachDayList[index].length; charAt++) {
         /// Add this char to the list
-        listOfLetters.add(eachDayList[indx][charAt]);
+        listOfLetters.add(eachDayList[index][charAt]);
       }
 
       /// Add this list of strings to our list of list of strings
@@ -649,6 +659,7 @@ class _HomePageState extends State<HomePage> {
     }
     else
     {
+      /// Update the didGet Variable for this day so we keep track of it
       profileStorage.setSpecificDidGetDayVar(0, 1);
     }
     /// If we did not get today's letters yet (0 is false)
@@ -657,9 +668,11 @@ class _HomePageState extends State<HomePage> {
     }
     else
     {
+      /// Update the didGet Variable for this day so we keep track of it
       profileStorage.setSpecificDidGetDayVar(numOfWeek, 1);
     }
 
+    /// Set futureTargets and futureTiles by calling the respective functions
     setState(() {
       futureTargets = Future<List<Target>>(() {
         return getTargetFromList();
@@ -677,8 +690,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> addLettersToRack(List<String> letters) async
   {
     /// Loop through the letters and add them one by one
-    for (int indx = 0; indx < letters.length; indx++) {
-      currentLettersInTiles.add(letters[indx]);
+    for (int index = 0; index < letters.length; index++) {
+      currentLettersInTiles.add(letters[index]);
     }
   }
 
