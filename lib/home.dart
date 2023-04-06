@@ -1,13 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:letr/ad_state.dart';
-import 'package:letr/profile.dart';
 import 'package:letr/profile_storage.dart';
 import 'package:letr/target.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +54,9 @@ class _HomePageState extends State<HomePage> {
   /// Initialize date to get day of week etc
   DateTime date = DateTime.now();
 
+  ///
+  DateTime startOfWeekDate = DateTime.now();
+
   int numOfWeek = -1;
   String dayOfWeek = '';
 
@@ -89,6 +88,9 @@ class _HomePageState extends State<HomePage> {
   /// gets created
   @override
   void initState() {
+    /// Init the start day of the week
+    startOfWeekDate = findFirstDateOfTheWeek(date);
+
     /// Increment the number of times the users has opened the app.
     _incrementCounter();
 
@@ -168,7 +170,7 @@ class _HomePageState extends State<HomePage> {
         decoration: const BoxDecoration(color: Colors.blueGrey),
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Week 34'),
+            title: Text(date.toString().split(' ')[0]),
             actions: <Widget>[
 
               /// This button is used remove all character from the board
@@ -692,7 +694,7 @@ class _HomePageState extends State<HomePage> {
     List<List<String>> weeksLetters = [];
 
     /// Store this weeks letters in a string var
-    String thisWeeksLetters = await loadLettersFromFile('Week34');
+    String thisWeeksLetters = await loadLettersFromFile(startOfWeekDate.toString().split(' ')[0]);
 
     /// Split this weeks letters into a list where each index is a day of the weeks
     /// letters
@@ -841,6 +843,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// Function used to get the date of the first day of the week. In this case
+  /// it will always be sunday. Takes in the date as a parameter and returns
+  /// a date of the sunday of this week
+  DateTime findFirstDateOfTheWeek(DateTime date) {
+    return date.subtract(Duration(days: date.weekday % DateTime.daysPerWeek));
+  }
 
 }
 
